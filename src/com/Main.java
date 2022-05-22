@@ -1,6 +1,9 @@
 package com;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Scanner;
 
 /**
@@ -25,29 +28,48 @@ public class Main {
         Prisms prisms;
         PrismsList prismsList = new PrismsList();
 
+        int numSquares = 0;
+        int numPrisms = 0;
+
         Database db = new Database();
+        int variant;
+        BackupFile backupFile = new BackupFile();
 
-        System.out.print("Введите количество квадратов:");
-        int numSquares = scan.nextInt();
-        squares = new Squares(numSquares);
+        do {
+            System.out.println("Введите вариант загрузки:");
+            System.out.println("\t0 - ввести свои значения");
+            System.out.println("\t1 - загрузить последнюю резервную копию");
+            System.out.print(":");
+            variant = scan.nextInt();
+        }while ((variant != 1 ) && (variant != 0));
 
-        System.out.print("Введите количество призм:");
-        int numPrisms = scan.nextInt();
-        prisms = new Prisms(numPrisms);
+        if (variant == 0){
+            System.out.print("\nВведите количество квадратов:");
+            numSquares = scan.nextInt();
+            squares = new Squares(numSquares);
 
+            System.out.print("Введите количество призм:");
+            numPrisms = scan.nextInt();
+            prisms = new Prisms(numPrisms);
+        }
+        else{
+            System.out.println("Загрузка...");
+            backupFile.load(db);
+        }
 
 //        part1(square, squares, prism, prisms, numSquares, numPrisms);
 //        part2(square, squaresList, prism, numSquares, numPrisms, prismsList);
         part3(square, db, prism, numSquares, numPrisms);
 
-        db.save("db.txt");
-        db.clear();
-        db.load("db.txt");
-        db.clear();
+//        db.save("db.txt");
+//        db.clear();
+//        db.load("db.txt");
         db.serialize("DB_Ser.txt");
         db.deserialize("DB_Ser.txt");
 
         System.out.println("Loaded Database: " + db);
+
+//        backupFile.save(db);
     }
 
     private static void part1(Square square, Squares squares, RightPrism prism, Prisms prisms, int numSquares, int numPrisms) {
@@ -108,21 +130,20 @@ public class Main {
         System.out.println("\n Призма с максимальной диагональю: " + Formatter.toDouble(prismsList.maxDiagonal()));
     }
 
-    //todo сделать коменты разраба
     /**
      * Реализовать сериализацию/десериализацию данных в файл/из файла на диске для Задания №6 в виде отдельного класса с методами Save и Load (2 балла).
      * Использовать независимых 2 способа: нативную Java-сериализацию и любую внешнюю библиотеку (2 балла).
      * Предусмотреть автоматическое создание новой резервной копии файла данных при завершении работы программы, имя файла - метка времени (1 балл)
      * Реализовать восстановление данных из последней созданной копии при запуске (1 балл).
      */
-    private static void part3(Square square, Database squaresDB, RightPrism prism, int numSquares, int numPrisms){
+    private static void part3(Square square, Database db, RightPrism prism, int numSquares, int numPrisms){
         double side;
 //        System.out.println("\n\nКвадраты:");
         for (int i = 0; i < numSquares; i++) {
             side = -1;
             while (square.CheckCorrectSide("" + (side = (int) (Math.random() * 11 - 5))) < 0) {//-5...5
             }
-            squaresDB.add(side);
+            db.add(side);
         }
     }
 }
